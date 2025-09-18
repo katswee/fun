@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tap for a Joke</title>
+<meta name="color-scheme" content="light dark">
+<style>
+  :root{
+    --sa1:#5DA2D5; --sa2:#4A8CCA; --sa3:#417BAF; --ink:#102535; --bg:#ffffff;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#0b1520; --ink:#e9f1f9; }
+  }
+  html,body{height:100%;margin:0}
+  body{
+    display:grid;place-items:center;
+    background:var(--bg);
+    color:var(--ink);
+    font:16px system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    text-align:center;
+    padding:24px;
+  }
+  .card{
+    width:min(560px,92vw);
+    border-radius:20px;
+    padding:28px 22px;
+    background:linear-gradient(180deg,#ffffff, #f6fbff);
+    box-shadow:0 8px 30px rgba(16,37,53,.15);
+    border:2px solid #e6f0f8;
+  }
+  h1{margin:0 0 8px;font-size:28px;line-height:1.2}
+  p{margin:6px 0 16px;opacity:.85}
+  .btn{
+    font-size:18px; padding:14px 18px; border-radius:12px; border:0;
+    background:linear-gradient(135deg,var(--sa1),var(--sa2));
+    color:white; box-shadow:0 4px 14px rgba(77,138,202,.35);
+    cursor:pointer;
+  }
+  .btn:active{transform:translateY(1px)}
+  .tiny{font-size:12px;opacity:.75;margin-top:12px}
+  .joke{font-size:20px;margin:12px 0 0 0;min-height:1.6em}
+  .brand{font-size:12px;letter-spacing:.04em;margin-top:16px;opacity:.7}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Tap for a joke 🎤</h1>
+    <p>Phones won’t always auto-play audio. If you don’t hear anything, tap the button.</p>
+    <div id="joke" class="joke"></div>
+    <p><button id="btn" class="btn" hidden>Play a joke</button></p>
+    <div class="brand">Sussex Autos — fun mode engaged</div>
+    <div class="tiny">Tip: Add this page to your Home Screen for one-tap laughs.</div>
+  </div>
+
+<script>
+const jokes=[
+  "Why did the gearbox break up with the clutch? Too much friction.",
+  "I told my car it was over. It said, fine, I’m shifting gears.",
+  "Mechanic’s favorite music? Torque and roll.",
+  "Why was the differential calm? It had good bearings.",
+  "I asked the transmission for advice. It said: let’s take this up a gear.",
+  "Car pun incoming… brace yourself.",
+  "My car started a band. It loves a good shift in key.",
+  "What do you call a polite transmission? Well-mannered and clutch.",
+  "I tried to fix a broken gearbox. Turns out I couldn’t handle it.",
+  "The torque converter threw a party. It was a real spin-off."
+];
+const jokeEl = document.getElementById('joke');
+const btn = document.getElementById('btn');
+
+function pick(){ return jokes[Math.floor(Math.random()*jokes.length)]; }
+function speakAndShow(text){
+  try { window.speechSynthesis.cancel(); } catch(e){}
+  jokeEl.textContent = text;
+  try {
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.0; u.pitch = 1.0;
+    speechSynthesis.speak(u);
+  } catch(e){ /* ignore */ }
+}
+
+function tryAutoSpeak(){
+  const j = pick();
+  speakAndShow(j);
+  // If browser blocks, reveal the play button.
+  setTimeout(()=>{
+    try {
+      if (!speechSynthesis.speaking) btn.hidden = false;
+    } catch(e){ btn.hidden = false; }
+  }, 450);
+}
+
+window.addEventListener('load', tryAutoSpeak);
+btn.addEventListener('click', ()=>{ speakAndShow(pick()); btn.textContent = "Another one"; });
+</script>
+</body>
+</html>
