@@ -133,6 +133,9 @@ p{margin:6px 0 16px}
 
   <div id="joke" class="joke"></div>
  
+<audio id="bell" preload="auto"
+  src="data:audio/wav;base64,UklGRlYAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQwAAAABAAD///8AAP////8AAP///wAA//8AAAD//wAAAP//AAAA//8AAAD//wAAAP//AAAA//8AAAD//wAAAP//AAAA//8AAAD//wAAAP//AAAA//8AAAD//wAAAP//AAAA">
+</audio>
 
 
 
@@ -204,73 +207,72 @@ document.getElementById('tellJoke').addEventListener('click', tellJoke);
 // Try to auto-joke on load (Android may allow); show text even if audio blocked
 window.addEventListener('load', ()=>{ const j = jokes[Math.floor(Math.random()*jokes.length)]; jokeEl.textContent = j; speak(j); });
 
-// ===== Robust iPhone-friendly doorbell =====
+// ===== iPhone-proof doorbell =====
+
+// 1) "Unlock" audio on the first tap so Safari lets sound play
+let audioUnlocked = false;
 let audioCtx = null;
-let lastTouch = 0;
+function unlockAudio() {
+  try {
+    // tiny silent web-audio blip to unlock
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const b = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
+    const s = audioCtx.createBufferSource(); s.buffer = b;
+    s.connect(audioCtx.destination); s.start(0);
+    audioCtx.resume && audioCtx.resume();
+  } catch (e) {}
+  audioUnlocked = true;
+  document.removeEventListener('touchend', unlockAudio);
+  document.removeEventListener('click', unlockAudio);
+}
+// listen once for any user gesture
+document.addEventListener('touchend', unlockAudio, { once:true, passive:true });
+document.addEventListener('click', unlockAudio, { once:true });
 
-function ensureAudio(){
-  // Create or resume the context inside the gesture
-  audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)({latencyHint:'interactive'});
-  if (audioCtx.state !== 'running') {
-    return audioCtx.resume().catch(()=>{});
-  }
-  return Promise.resolve();
+// 2) Primary: play a preloaded <audio> ding (fast, reliable after unlock)
+const bellEl = document.getElementById('bell');
+
+// 3) Fallback: Web Audio double-ding if <audio>.play() rejects
+function webAudioDing() {
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)({ latencyHint:'interactive' });
+    audioCtx.resume && audioCtx.resume();
+    const now = audioCtx.currentTime;
+    [[880, 0], [1175, 0.18]].forEach(([freq, delay]) => {
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = 'sine'; o.frequency.value = freq;
+      o.connect(g); g.connect(audioCtx.destination);
+      const start = now + delay, end = start + 0.16;
+      g.gain.setValueAtTime(0, start);
+      g.gain.linearRampToValueAtTime(0.7, start + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, end);
+      o.start(start); o.stop(end + 0.01);
+    });
+    if (navigator.vibrate) try { navigator.vibrate([35, 35]); } catch(e) {}
+  } catch(e) {}
 }
 
-function beep(){
-  ensureAudio().then(()=>{
-    if (!audioCtx) return;
-    const sr = audioCtx.sampleRate;
-
-    // Build a short double-ding buffer that's nice and audible
-    const dur = 0.45;                // seconds
-    const frames = Math.floor(sr * dur);
-    const buf = audioCtx.createBuffer(1, frames, sr);
-    const data = buf.getChannelData(0);
-
-    for (let i = 0; i < frames; i++){
-      const t = i / sr;
-      let f = 0, a = 0;
-      if (t < 0.18) {                // Ding 1 (A5 ~ 880 Hz)
-        f = 880;
-        a = t < 0.02 ? (t/0.02) : Math.exp(-6*(t-0.02));
-      } else if (t >= 0.22 && t < 0.40) { // Ding 2 (D6 ~ 1175 Hz)
-        f = 1175;
-        a = Math.exp(-6*(t-0.22));
-      }
-      data[i] = a * Math.sin(2 * Math.PI * f * t);
+function ringOnce(e) {
+  e && e.preventDefault && e.preventDefault();
+  // try <audio> first
+  try {
+    bellEl.currentTime = 0;
+    const p = bellEl.play();
+    if (p && typeof p.catch === 'function') {
+      p.catch(() => webAudioDing());
     }
-
-    const src = audioCtx.createBufferSource();
-    src.buffer = buf;
-    const gain = audioCtx.createGain();
-    gain.gain.value = 0.9;           // louder but not clipping
-    src.connect(gain).connect(audioCtx.destination);
-    src.start();
-
-    // Tiny haptic hint if available
-    if (navigator.vibrate) { try { navigator.vibrate([35, 35]); } catch(e) {} }
-  });
+  } catch(_) {
+    webAudioDing();
+  }
 }
 
-function handleBell(ev){
-  const now = Date.now();
-  if (ev.type === 'touchstart') lastTouch = now;
-  // prevent duplicate click after touch on iOS
-  if (ev.type === 'click' && now - lastTouch < 400) return;
-  ev.preventDefault && ev.preventDefault();
-  beep();
-}
+// hook up both touch and click; dedupe the ghost click after touch
+let lastTouch = 0;
+const btn = document.getElementById('doorbell');
+btn.addEventListener('touchstart', (ev) => { lastTouch = Date.now(); ringOnce(ev); }, { passive:false });
+btn.addEventListener('click', (ev) => { if (Date.now() - lastTouch < 400) return; ringOnce(ev); });
 
-const bellBtn = document.getElementById('doorbell');
-bellBtn.addEventListener('touchstart', handleBell, {passive:false});
-bellBtn.addEventListener('click', handleBell);
-
-// Links
-document.getElementById('wa').href   = "https://wa.me/" + MOBILE_E164.replace("+","") + "?text=" + encodeURIComponent(MSG);
-document.getElementById('sms').href  = "sms:" + MOBILE_E164 + "?&body=" + encodeURIComponent(MSG);
-document.getElementById('call').href = "tel:" + MOBILE_E164;
-document.getElementById('email').href= "mailto:" + encodeURIComponent(EMAIL) + "?subject=" + encodeURIComponent(SUBJECT) + "&body=" + encodeURIComponent(MSG);
 </script>
 
 
