@@ -3,95 +3,135 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Tap for a Joke</title>
+<title>Tap Action Hub</title>
 <meta name="color-scheme" content="light dark">
 <style>
-  :root{
-    --sa1:#5DA2D5; --sa2:#4A8CCA; --sa3:#417BAF; --ink:#102535; --bg:#ffffff;
-  }
-  @media (prefers-color-scheme: dark){
-    :root{ --bg:#0b1520; --ink:#e9f1f9; }
-  }
+  :root{--c1:#3b82f6;--c2:#9333ea;--ink:#0f172a;--bg:#ffffff}
+  @media (prefers-color-scheme: dark){:root{--bg:#0b1220;--ink:#e5edff}}
+  *{box-sizing:border-box}
   html,body{height:100%;margin:0}
-  body{
-    display:grid;place-items:center;
-    background:var(--bg);
-    color:var(--ink);
-    font:16px system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-    text-align:center;
-    padding:24px;
-  }
-  .card{
-    width:min(560px,92vw);
-    border-radius:20px;
-    padding:28px 22px;
-    background:linear-gradient(180deg,#ffffff, #f6fbff);
-    box-shadow:0 8px 30px rgba(16,37,53,.15);
-    border:2px solid #e6f0f8;
-  }
-  h1{margin:0 0 8px;font-size:28px;line-height:1.2}
+  body{display:grid;place-items:center;background:var(--bg);color:var(--ink);
+       font:16px system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+       padding:24px}
+  .card{width:min(720px,96vw);border-radius:20px;padding:28px 22px;
+        background:linear-gradient(180deg,#ffffff,#f6fbff);
+        box-shadow:0 10px 36px rgba(0,0,0,.15);border:1px solid #e8eef7}
+  h1{margin:0 0 10px;font-size:28px}
   p{margin:6px 0 16px;opacity:.85}
-  .btn{
-    font-size:18px; padding:14px 18px; border-radius:12px; border:0;
-    background:linear-gradient(135deg,var(--sa1),var(--sa2));
-    color:white; box-shadow:0 4px 14px rgba(77,138,202,.35);
-    cursor:pointer;
-  }
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+  .btn{display:inline-block;text-align:center;width:100%;
+       font-size:16px;padding:12px 14px;border-radius:12px;border:0;
+       background:linear-gradient(135deg,var(--c1),var(--c2));color:white;
+       box-shadow:0 4px 14px rgba(59,130,246,.35);text-decoration:none;cursor:pointer}
   .btn:active{transform:translateY(1px)}
-  .tiny{font-size:12px;opacity:.75;margin-top:12px}
-  .joke{font-size:20px;margin:12px 0 0 0;min-height:1.6em}
-  .brand{font-size:12px;letter-spacing:.04em;margin-top:16px;opacity:.7}
+  .low{background:#eef2ff;color:#111827;box-shadow:none;border:1px solid #e5e7eb}
+  .row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  .joke{font-size:18px;margin:8px 0 0 0;min-height:1.6em}
+  .tiny{font-size:12px;opacity:.7;margin-top:12px}
+  .divider{height:1px;background:#e8eef7;margin:14px 0}
 </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Tap for a joke 🎤</h1>
-    <p>Phones won’t always auto-play audio. If you don’t hear anything, tap the button.</p>
-    <div id="joke" class="joke"></div>
-    <p><button id="btn" class="btn" hidden>Play a joke</button></p>
-        <div class="tiny">Tip: Add this page to your Home Screen for one-tap laughs.</div>
+<div class="card">
+  <h1>Tap Action Hub ✨</h1>
+  <p>Pick something fun. (Audio may need one tap on iPhone.)</p>
+
+  <div class="grid" style="margin-top:10px">
+    <button class="btn" id="tellJoke">🎤 Tell a better joke</button>
+    <button class="btn" id="doorbell">🔔 Doorbell</button>
+    <a class="btn" id="wa" href="#">💬 WhatsApp</a>
+    <a class="btn" id="sms" href="#">📱 Text</a>
+    <a class="btn" id="call" href="#">📞 Call</a>
+    <a class="btn" id="email" href="#">✉️ Email</a>
+    <a class="btn low" id="rick" href="https://youtu.be/dQw4w9WgXcQ">🎵 Surprise me</a>
   </div>
 
+  <div class="divider"></div>
+
+  <div id="joke" class="joke"></div>
+  <audio id="ding" preload="auto" src="data:audio/wav;base64,UklGRlYAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQwAAAABAAD///8AAP////8AAP///wAA//8AAAD//wAAAP//AAAA//8AAAD//wAAAP//AAAA//8AAAD//wAAAP//AAAA//8AAAD//wAAAP//AAAA//8AAAD//wAAAP//AAAA"></audio>
+
+
+
 <script>
+// ===== CONFIG: set your details here =====
+const MOBILE_E164 = "+447379044316"; // Your mobile in +44 format
+const EMAIL = "kate@sussexautos.com";    // Your email
+const SUBJECT = "SUMMON BASIL🐶🐕";
+const MSG = "Hi — Is Basil Here?!";
+// =========================================
+
+// Curated short, punchy, mostly clean jokes
 const jokes=[
-  "Why did the gearbox break up with the clutch? Too much friction.",
-  "I told my car it was over. It said, fine, I’m shifting gears.",
-  "Mechanic’s favorite music? Torque and roll.",
-  "Why was the differential calm? It had good bearings.",
-  "I asked the transmission for advice. It said: let’s take this up a gear.",
-  "Car pun incoming… brace yourself.",
-  "My car started a band. It loves a good shift in key.",
-  "What do you call a polite transmission? Well-mannered and clutch.",
-  "I tried to fix a broken gearbox. Turns out I couldn’t handle it.",
-  "The torque converter threw a party. It was a real spin-off."
+  "I asked my dog what two minus two is. He said nothing.",
+  "I only know 25 letters of the alphabet. I don’t know y.",
+  "What do you call fake spaghetti? An impasta.",
+  "I used to play piano by ear. Now I use my hands.",
+  "I told my suitcases there will be no vacation this year. Now I’m dealing with emotional baggage.",
+  "I ordered a chicken and an egg from Amazon. I’ll let you know.",
+  "Why can’t a nose be 12 inches long? Then it would be a foot.",
+  "I don’t trust stairs. They’re always up to something.",
+  "I told a joke about a roof. It went over their heads.",
+  "How does the moon cut his hair? Eclipse it.",
+  "I gave all my dead batteries away. Free of charge.",
+  "Why did the scarecrow win an award? He was outstanding in his field.",
+  "I’m reading a book about anti-gravity. It’s impossible to put down.",
+  "Parallel lines have so much in common. It’s a shame they’ll never meet.",
+  "Why did the math book look sad? Too many problems.",
+  "I used to be addicted to soap. I’m clean now.",
+  "I had a joke about construction, but I’m still working on it.",
+  "What do you call a belt made of watches? A waist of time.",
+  "Singing in the shower is fun until you get soap in your mouth. Then it’s a soap opera.",
+  "I stayed up all night to see where the sun went, and then it dawned on me.",
+  "The rotation of Earth really makes my day.",
+  "I told my computer I needed a break, and it said: no problem — I’ll go to sleep.",
+  "I used to be a baker, then I couldn’t make enough dough.",
+  "What do you call cheese that isn’t yours? Nacho cheese.",
+  "I got hit in the head with a can of soda. Luckily it was a soft drink.",
+  "I’d tell you a Fibonacci joke, but it’s probably as bad as the last two you heard combined.",
+  "I’m on a seafood diet. I see food and I eat it.",
+  "Why don’t skeletons fight each other? They don’t have the guts.",
+  "I tried to catch fog yesterday. Mist.",
+  "Two antennas met on a roof, fell in love, and got married. The ceremony wasn’t much, but the reception was excellent.",
+  "I told my wife she should embrace her mistakes. She gave me a hug.",
+  "I used to hate facial hair… but then it grew on me.",
+  "What do you call a factory that makes okay products? A satisfactory.",
+  "I’m so good at sleeping I can do it with my eyes closed.",
+  "Want to hear a construction joke? Sorry, I’m still working on it.",
+  "Why did the coffee file a police report? It got mugged.",
+  "What do you call a fish with no eyes? Fsh.",
+  "What do you call a pile of cats? A meowtain.",
+  "I once got fired from a calendar factory. I took a day off.",
+  "I used to be indecisive. Now I’m not so sure.",
+  "Why did the golfer bring two pairs of pants? In case he got a hole in one."
 ];
+
 const jokeEl = document.getElementById('joke');
-const btn = document.getElementById('btn');
-
-function pick(){ return jokes[Math.floor(Math.random()*jokes.length)]; }
-function speakAndShow(text){
-  try { window.speechSynthesis.cancel(); } catch(e){}
-  jokeEl.textContent = text;
-  try {
+function speak(text){
+  try{ speechSynthesis.cancel(); }catch(e){}
+  try{
     const u = new SpeechSynthesisUtterance(text);
-    u.rate = 1.0; u.pitch = 1.0;
+    u.rate = 1; u.pitch = 1;
     speechSynthesis.speak(u);
-  } catch(e){ /* ignore */ }
+  }catch(e){}
 }
+function tellJoke(){ const j = jokes[Math.floor(Math.random()*jokes.length)]; jokeEl.textContent = j; speak(j); }
+document.getElementById('tellJoke').addEventListener('click', tellJoke);
 
-function tryAutoSpeak(){
-  const j = pick();
-  speakAndShow(j);
-  // If browser blocks, reveal the play button.
-  setTimeout(()=>{
-    try {
-      if (!speechSynthesis.speaking) btn.hidden = false;
-    } catch(e){ btn.hidden = false; }
-  }, 450);
-}
+// Try to auto-joke on load (Android may allow); show text even if audio blocked
+window.addEventListener('load', ()=>{ const j = jokes[Math.floor(Math.random()*jokes.length)]; jokeEl.textContent = j; speak(j); });
 
-window.addEventListener('load', tryAutoSpeak);
-btn.addEventListener('click', ()=>{ speakAndShow(pick()); btn.textContent = "Another one"; });
+// Doorbell
+const ding = document.getElementById('ding');
+document.getElementById('doorbell').addEventListener('click', ()=>{ try{ ding.currentTime=0; ding.play(); }catch(e){} });
+
+// Links
+document.getElementById('wa').href   = "https://wa.me/" + MOBILE_E164.replace("+","") + "?text=" + encodeURIComponent(MSG);
+document.getElementById('sms').href  = "sms:" + MOBILE_E164 + "?&body=" + encodeURIComponent(MSG);
+document.getElementById('call').href = "tel:" + MOBILE_E164;
+document.getElementById('email').href= "mailto:" + encodeURIComponent(EMAIL) + "?subject=" + encodeURIComponent(SUBJECT) + "&body=" + encodeURIComponent(MSG);
 </script>
+
+<audio id="ding" preload="auto" src="data:audio/wav;base64,UklGRlYAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQwAAAABAAD///8AAP////8AAP///wAA//8AAAD//wAAAP//AAAA//8AAAD//wAAAP//AAAA//8AAAD//wAAAP//AAAA//8AAAD//wAAAP//AAAA//8AAAD//wAAAP//AAAA"></audio>
 </body>
 </html>
