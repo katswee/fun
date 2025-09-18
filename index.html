@@ -6,8 +6,13 @@
 <title>Kate's Hub</title>
 <meta name="color-scheme" content="light dark">
 <style>
- :root{--c1:#3b82f6;--c2:#9333ea;--ink:#0b1220;--bg:#ffffff}        /* darker ink */
-@media (prefers-color-scheme: dark){:root{--bg:#0b1220;--ink:#ffffff}} /* pure white in dark */
+ :root{--c1:#3b82f6;--c2:#9333ea;--ink:#0b1220;--bg:#ffffff}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#0b1220;--ink:#ffffff}
+  body, h1, p, .joke, .tiny { color:#ffffff !important; -webkit-text-fill-color:#ffffff; }
+  .card{ background:#0f172a; border-color:#1f2937; box-shadow:0 10px 36px rgba(0,0,0,.5); }
+  .low{ background:#1f2937; color:#ffffff !important; border-color:#334155; }
+}
 
   *{box-sizing:border-box}
   html,body{height:100%;margin:0}
@@ -17,8 +22,10 @@
   .card{width:min(720px,96vw);border-radius:20px;padding:28px 22px;
         background:linear-gradient(180deg,#ffffff,#f6fbff);
         box-shadow:0 10px 36px rgba(0,0,0,.15);border:1px solid #e8eef7}
-  h1{margin:0 0 10px;font-size:28px}
-  p{margin:6px 0 16px}  
+  h1{margin:0 0 10px;font-size:28px;font-weight:800}
+p{margin:6px 0 16px}
+.joke{font-size:18px;margin:8px 0 0 0;min-height:1.6em;color:var(--ink);font-weight:600}
+
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
   .btn{display:inline-block;text-align:center;width:100%;
        font-size:16px;padding:12px 14px;border-radius:12px;border:0;
