@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Tap Action Hub</title>
+<title>Kate's Hub</title>
 <meta name="color-scheme" content="light dark">
 <style>
-  :root{--c1:#000000;--c2:#9333ea;--ink:#000000;--bg:#ffffff}
-  @media (prefers-color-scheme: dark){:root{--bg:#0b1220;--ink:#e5edff}}
+ :root{--c1:#3b82f6;--c2:#9333ea;--ink:#0b1220;--bg:#ffffff}        /* darker ink */
+@media (prefers-color-scheme: dark){:root{--bg:#0b1220;--ink:#ffffff}} /* pure white in dark */
+
   *{box-sizing:border-box}
   html,body{height:100%;margin:0}
   body{display:grid;place-items:center;background:var(--bg);color:var(--ink);
@@ -17,7 +18,7 @@
         background:linear-gradient(180deg,#ffffff,#f6fbff);
         box-shadow:0 10px 36px rgba(0,0,0,.15);border:1px solid #e8eef7}
   h1{margin:0 0 10px;font-size:28px}
-  p{margin:6px 0 16px;opacity:.85}
+  p{margin:6px 0 16px}  
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
   .btn{display:inline-block;text-align:center;width:100%;
        font-size:16px;padding:12px 14px;border-radius:12px;border:0;
@@ -26,15 +27,15 @@
   .btn:active{transform:translateY(1px)}
   .low{background:#eef2ff;color:#111827;box-shadow:none;border:1px solid #e5e7eb}
   .row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
-  .joke{font-size:18px;margin:8px 0 0 0;min-height:1.6em}
+  .joke{font-size:18px;margin:8px 0 0 0;min-height:1.6em;color:var(--ink);font-weight:600}
   .tiny{font-size:12px;opacity:.7;margin-top:12px}
   .divider{height:1px;background:#e8eef7;margin:14px 0}
 </style>
 </head>
 <body>
 <div class="card">
-  <h1>Tap Action Hub ✨</h1>
-  <p>Pick something fun. (Audio may need one tap on iPhone.)</p>
+  <h1>✨ Kate's Hub ✨</h1>
+  <p>Pick something fun!<br> (Audio may need one tap on iPhone.)</p>
 
   <div class="grid" style="margin-top:10px">
     <button class="btn" id="tellJoke">🎤 Tell a better joke</button>
